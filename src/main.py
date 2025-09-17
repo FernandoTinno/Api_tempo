@@ -4,41 +4,59 @@ import time
 import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
-from collections import Counter
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 DATA_DIR.mkdir(exist_ok=True)
 
 def baixar_clima():
+    """Baixa dados do Open-Meteo e salva em JSON"""
     url = "https://api.open-meteo.com/v1/forecast"
     params = {
-        "latitude": -23.55,       # São Paulo
+        "latitude": -23.55,
         "longitude": -46.63,
         "hourly": "temperature_2m,relative_humidity_2m"
     }
-    resp = requests.get(url, params=params, timeout=10)
-    resp.raise_for_status()
-    dados = resp.json()
+    try:
+        resp = requests.get(url, params=params, timeout=10)
+        resp.raise_for_status()  # gera erro se status != 200
+        dados = resp.json()
 
-    with open(DATA_DIR / "clima.json", "w", encoding="utf-8") as f:
-        json.dump(dados, f, ensure_ascii=False, indent=2)
+        with open(DATA_DIR / "clima.json", "w", encoding="utf-8") as f:
+            json.dump(dados, f, ensure_ascii=False, indent=2)
+        print(f"Arquivo salvo em {DATA_DIR / 'clima.json'}")
 
-    print(f"Arquivo salvo em: {DATA_DIR / 'clima.json'}")
+    except requests.exceptions.Timeout:
+        print("Erro: A requisição demorou muito para responder (timeout).")
+    except requests.exceptions.RequestException as e:
+        print(f"Erro na requisição: {e}")
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
+
 
 def carregar_dados():
-    with open(DATA_DIR / "clima.json", "r", encoding="utf-8") as f:
-        dados = json.load(f)
+    """Carrega JSON salvo e converte para DataFrame"""
+    try:
+        with open(DATA_DIR / "clima.json", encoding="utf-8") as f:
+            dados = json.load(f)
 
-    df = pd.DataFrame({
-        "time": dados["hourly"]["time"],
-        "temperature": dados["hourly"]["temperature_2m"],
-        "humidity": dados["hourly"]["relative_humidity_2m"]
-    })
+        if "hourly" not in dados:
+            raise ValueError("JSON não contém dados 'hourly'.")
 
-    print("\nPrimeiras linhas do DataFrame:")
-    print(df.head())
+        df = pd.DataFrame({
+            "time": dados["hourly"]["time"],
+            "temperature": dados["hourly"]["temperature_2m"],
+            "humidity": dados["hourly"]["relative_humidity_2m"]
+        })
 
-    return df
+        return df
+
+    except FileNotFoundError:
+        print("Erro: Arquivo clima.json não encontrado. Rode baixar_clima() antes.")
+    except ValueError as e:
+        print(f"Erro de conteúdo: {e}")
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
+
 
 def estatisticas_basicas(df):
     print("\n=== Estatísticas básicas do clima ===")
