@@ -1,0 +1,21 @@
+# Ambientes Virtuais (NUNCA suba a venv para o GitHub)
+venv/
+env/
+.venv/
+
+# Variáveis de Ambiente e Credenciais (MUITO IMPORTANTE PARA SEGURANÇA)
+.env
+
+# Arquivos de Cache do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Pasta de Dados Gerados (Ignoramos o que o script baixa/gera)
+data/
+
+# Arquivos do Sistema Operacional
+.DS_Store
+Thumbs.db
