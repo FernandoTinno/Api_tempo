@@ -1,43 +1,40 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from api import DATA_DIR
+from pathlib import Path
 
-def gerar_graficos(df):
-    df["time"] = pd.to_datetime(df["time"])
+DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 
-    print("\n=== Gerando gráficos... ===")
+def generate_plots(df):
+    """Generates and saves analytical plots based on weather data."""
+    print("\n=== Generating analytical plots... ===")
 
-    # 1. Temperatura ao longo do tempo
     plt.figure(figsize=(12, 6))
-    plt.plot(df["time"], df["temperature"], label="Temperatura (°C)", color="red")
-    plt.xlabel("Tempo")
-    plt.ylabel("Temperatura (°C)")
-    plt.title("Variação da Temperatura ao longo do tempo")
+    plt.plot(df["timestamp"], df["temperature"], label="Temperature (°C)", color="red")
+    plt.xlabel("Time")
+    plt.ylabel("Temperature (°C)")
+    plt.title("Temperature Variation Over Time")
     plt.xticks(rotation=45)
     plt.legend()
     plt.tight_layout()
-    plt.savefig(DATA_DIR / "grafico_temperatura.png")
-    plt.show()
+    plt.savefig(DATA_DIR / "temperature_plot.png")
+    plt.close()
 
-    # 2. Umidade ao longo do tempo
     plt.figure(figsize=(12, 6))
-    plt.plot(df["time"], df["humidity"], label="Umidade (%)", color="blue")
-    plt.xlabel("Tempo")
-    plt.ylabel("Umidade Relativa (%)")
-    plt.title("Variação da Umidade ao longo do tempo")
+    plt.plot(df["timestamp"], df["humidity"], label="Humidity (%)", color="blue")
+    plt.xlabel("Time")
+    plt.ylabel("Relative Humidity (%)")
+    plt.title("Humidity Variation Over Time")
     plt.xticks(rotation=45)
     plt.legend()
     plt.tight_layout()
-    plt.savefig(DATA_DIR / "grafico_umidade.png")
-    plt.show()
+    plt.savefig(DATA_DIR / "humidity_plot.png")
+    plt.close()
 
-    # 3. Temperatura x Umidade (dispersão)
     plt.figure(figsize=(8, 6))
     plt.scatter(df["temperature"], df["humidity"], alpha=0.6, color="green")
-    plt.xlabel("Temperatura (°C)")
-    plt.ylabel("Umidade (%)")
-    plt.title("Relação entre Temperatura e Umidade")
+    plt.xlabel("Temperature (°C)")
+    plt.ylabel("Humidity (%)")
+    plt.title("Temperature vs Humidity Relationship")
     plt.tight_layout()
-    plt.savefig(DATA_DIR / "grafico_temp_umidade.png")
-    plt.show()
-    return df
+    plt.savefig(DATA_DIR / "temp_humidity_scatter.png")
+    plt.close()
